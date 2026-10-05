@@ -10,33 +10,206 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AgendaRouteImport } from './routes/agenda'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as PartnershipsRouteImport } from './routes/partnerships'
+import { Route as RankingRouteImport } from './routes/ranking'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SupportRouteImport } from './routes/support'
+import { Route as VerificationRouteImport } from './routes/verification'
+import { Route as DashboardPsychologistRouteImport } from './routes/dashboard.psychologist'
+import { Route as DashboardRefugeeRouteImport } from './routes/dashboard.refugee'
+import { Route as PsychologistOnboardingRouteImport } from './routes/psychologist.onboarding'
+import { Route as PsychologistsIndexRouteImport } from './routes/psychologists.index'
+import { Route as PsychologistsIdRouteImport } from './routes/psychologists.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AgendaRoute = AgendaRouteImport.update({
+  id: '/agenda',
+  path: '/agenda',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartnershipsRoute = PartnershipsRouteImport.update({
+  id: '/partnerships',
+  path: '/partnerships',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RankingRoute = RankingRouteImport.update({
+  id: '/ranking',
+  path: '/ranking',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SupportRoute = SupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerificationRoute = VerificationRouteImport.update({
+  id: '/verification',
+  path: '/verification',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardPsychologistRoute = DashboardPsychologistRouteImport.update({
+  id: '/dashboard/psychologist',
+  path: '/dashboard/psychologist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRefugeeRoute = DashboardRefugeeRouteImport.update({
+  id: '/dashboard/refugee',
+  path: '/dashboard/refugee',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PsychologistOnboardingRoute = PsychologistOnboardingRouteImport.update({
+  id: '/psychologist/onboarding',
+  path: '/psychologist/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PsychologistsIndexRoute = PsychologistsIndexRouteImport.update({
+  id: '/psychologists/',
+  path: '/psychologists/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PsychologistsIdRoute = PsychologistsIdRouteImport.update({
+  id: '/psychologists/$id',
+  path: '/psychologists/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/agenda': typeof AgendaRoute
+  '/auth': typeof AuthRoute
+  '/partnerships': typeof PartnershipsRoute
+  '/ranking': typeof RankingRoute
+  '/settings': typeof SettingsRoute
+  '/support': typeof SupportRoute
+  '/verification': typeof VerificationRoute
+  '/dashboard/psychologist': typeof DashboardPsychologistRoute
+  '/dashboard/refugee': typeof DashboardRefugeeRoute
+  '/psychologist/onboarding': typeof PsychologistOnboardingRoute
+  '/psychologists/$id': typeof PsychologistsIdRoute
+  '/psychologists/': typeof PsychologistsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/agenda': typeof AgendaRoute
+  '/auth': typeof AuthRoute
+  '/partnerships': typeof PartnershipsRoute
+  '/ranking': typeof RankingRoute
+  '/settings': typeof SettingsRoute
+  '/support': typeof SupportRoute
+  '/verification': typeof VerificationRoute
+  '/dashboard/psychologist': typeof DashboardPsychologistRoute
+  '/dashboard/refugee': typeof DashboardRefugeeRoute
+  '/psychologist/onboarding': typeof PsychologistOnboardingRoute
+  '/psychologists/$id': typeof PsychologistsIdRoute
+  '/psychologists': typeof PsychologistsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/agenda': typeof AgendaRoute
+  '/auth': typeof AuthRoute
+  '/partnerships': typeof PartnershipsRoute
+  '/ranking': typeof RankingRoute
+  '/settings': typeof SettingsRoute
+  '/support': typeof SupportRoute
+  '/verification': typeof VerificationRoute
+  '/dashboard/psychologist': typeof DashboardPsychologistRoute
+  '/dashboard/refugee': typeof DashboardRefugeeRoute
+  '/psychologist/onboarding': typeof PsychologistOnboardingRoute
+  '/psychologists/$id': typeof PsychologistsIdRoute
+  '/psychologists/': typeof PsychologistsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/agenda'
+    | '/auth'
+    | '/partnerships'
+    | '/ranking'
+    | '/settings'
+    | '/support'
+    | '/verification'
+    | '/dashboard/psychologist'
+    | '/dashboard/refugee'
+    | '/psychologist/onboarding'
+    | '/psychologists/$id'
+    | '/psychologists/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/admin'
+    | '/agenda'
+    | '/auth'
+    | '/partnerships'
+    | '/ranking'
+    | '/settings'
+    | '/support'
+    | '/verification'
+    | '/dashboard/psychologist'
+    | '/dashboard/refugee'
+    | '/psychologist/onboarding'
+    | '/psychologists/$id'
+    | '/psychologists'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/agenda'
+    | '/auth'
+    | '/partnerships'
+    | '/ranking'
+    | '/settings'
+    | '/support'
+    | '/verification'
+    | '/dashboard/psychologist'
+    | '/dashboard/refugee'
+    | '/psychologist/onboarding'
+    | '/psychologists/$id'
+    | '/psychologists/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
+  AgendaRoute: typeof AgendaRoute
+  AuthRoute: typeof AuthRoute
+  PartnershipsRoute: typeof PartnershipsRoute
+  RankingRoute: typeof RankingRoute
+  SettingsRoute: typeof SettingsRoute
+  SupportRoute: typeof SupportRoute
+  VerificationRoute: typeof VerificationRoute
+  DashboardPsychologistRoute: typeof DashboardPsychologistRoute
+  DashboardRefugeeRoute: typeof DashboardRefugeeRoute
+  PsychologistOnboardingRoute: typeof PsychologistOnboardingRoute
+  PsychologistsIdRoute: typeof PsychologistsIdRoute
+  PsychologistsIndexRoute: typeof PsychologistsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +221,115 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/agenda': {
+      id: '/agenda'
+      path: '/agenda'
+      fullPath: '/agenda'
+      preLoaderRoute: typeof AgendaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/partnerships': {
+      id: '/partnerships'
+      path: '/partnerships'
+      fullPath: '/partnerships'
+      preLoaderRoute: typeof PartnershipsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ranking': {
+      id: '/ranking'
+      path: '/ranking'
+      fullPath: '/ranking'
+      preLoaderRoute: typeof RankingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/support': {
+      id: '/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verification': {
+      id: '/verification'
+      path: '/verification'
+      fullPath: '/verification'
+      preLoaderRoute: typeof VerificationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/psychologist': {
+      id: '/dashboard/psychologist'
+      path: '/dashboard/psychologist'
+      fullPath: '/dashboard/psychologist'
+      preLoaderRoute: typeof DashboardPsychologistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/refugee': {
+      id: '/dashboard/refugee'
+      path: '/dashboard/refugee'
+      fullPath: '/dashboard/refugee'
+      preLoaderRoute: typeof DashboardRefugeeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/psychologist/onboarding': {
+      id: '/psychologist/onboarding'
+      path: '/psychologist/onboarding'
+      fullPath: '/psychologist/onboarding'
+      preLoaderRoute: typeof PsychologistOnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/psychologists/': {
+      id: '/psychologists/'
+      path: '/psychologists'
+      fullPath: '/psychologists/'
+      preLoaderRoute: typeof PsychologistsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/psychologists/$id': {
+      id: '/psychologists/$id'
+      path: '/psychologists/$id'
+      fullPath: '/psychologists/$id'
+      preLoaderRoute: typeof PsychologistsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
+  AgendaRoute: AgendaRoute,
+  AuthRoute: AuthRoute,
+  PartnershipsRoute: PartnershipsRoute,
+  RankingRoute: RankingRoute,
+  SettingsRoute: SettingsRoute,
+  SupportRoute: SupportRoute,
+  VerificationRoute: VerificationRoute,
+  DashboardPsychologistRoute: DashboardPsychologistRoute,
+  DashboardRefugeeRoute: DashboardRefugeeRoute,
+  PsychologistOnboardingRoute: PsychologistOnboardingRoute,
+  PsychologistsIdRoute: PsychologistsIdRoute,
+  PsychologistsIndexRoute: PsychologistsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
