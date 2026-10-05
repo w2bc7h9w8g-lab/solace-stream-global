@@ -1,0 +1,12 @@
+{
+  "name": "Programa Refugiados UNESCO",
+  "short_name": "Refugiados",
+  "description": "Conexão segura entre pessoas refugiadas e psicólogos voluntários.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf7f0",
+  "theme_color": "#2d5f6e",
+  "icons": [
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
