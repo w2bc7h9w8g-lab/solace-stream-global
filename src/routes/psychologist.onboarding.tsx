@@ -6,7 +6,7 @@ import { languages, specialties } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/psychologist/onboarding")({
   head: () => ({ meta: [
-    { title: "Cadastro de psicólogo voluntário — Programa Refugiados UNESCO" },
+    { title: "Cadastro de psicólogo voluntário — Solace Stream Global" },
     { name: "description", content: "Cadastro em etapas: dados profissionais, especialidades, idiomas, disponibilidade e formação." },
     { property: "og:title", content: "Seja psicólogo voluntário" },
     { property: "og:description", content: "Junte-se à rede de apoio psicológico para pessoas refugiadas." },
