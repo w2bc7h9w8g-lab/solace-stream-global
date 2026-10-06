@@ -7,8 +7,8 @@ export const Route = createFileRoute("/auth")({
   head: () => ({ meta: [
     { title: "Entrar ou cadastrar — Solace Stream Global" },
     { name: "description", content: "Acesse ou crie sua conta como pessoa refugiada, psicólogo voluntário ou parceiro." },
-    { property: "og:title", content: "Entrar — Solace Stream Global" },
-    { property: "og:description", content: "Acesso seguro à plataforma de apoio psicológico." },
+    { property: "og:title", content: "Entrar ou cadastrar — Solace Stream Global" },
+    { property: "og:description", content: "Acesse ou crie sua conta como pessoa refugiada, psicólogo voluntário ou parceiro." }, { name: "twitter:title", content: "Entrar ou cadastrar — Solace Stream Global" }, { name: "twitter:description", content: "Acesse ou crie sua conta como pessoa refugiada, psicólogo voluntário ou parceiro." },
   ] }),
   component: AuthPage,
 });
