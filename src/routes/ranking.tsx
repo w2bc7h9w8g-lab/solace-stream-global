@@ -7,8 +7,8 @@ export const Route = createFileRoute("/ranking")({
   head: () => ({ meta: [
     { title: "Ranking de voluntários — Solace Stream Global" },
     { name: "description", content: "Reconhecimento público dos psicólogos que mais contribuem, sem dados clínicos." },
-    { property: "og:title", content: "Ranking de maiores ajudantes" },
-    { property: "og:description", content: "Gamificação e pontos de contribuição voluntária." },
+    { property: "og:title", content: "Ranking de voluntários — Solace Stream Global" },
+    { property: "og:description", content: "Reconhecimento público dos psicólogos que mais contribuem, sem dados clínicos." }, { name: "twitter:title", content: "Ranking de voluntários — Solace Stream Global" }, { name: "twitter:description", content: "Reconhecimento público dos psicólogos que mais contribuem, sem dados clínicos." },
   ] }),
   loader: () => repo.getLeaderboard(),
   component: Ranking,
