@@ -5,7 +5,7 @@ import { repo } from "@/lib/data/repository";
 
 export const Route = createFileRoute("/ranking")({
   head: () => ({ meta: [
-    { title: "Ranking de voluntários — Programa Refugiados UNESCO" },
+    { title: "Ranking de voluntários — Solace Stream Global" },
     { name: "description", content: "Reconhecimento público dos psicólogos que mais contribuem, sem dados clínicos." },
     { property: "og:title", content: "Ranking de maiores ajudantes" },
     { property: "og:description", content: "Gamificação e pontos de contribuição voluntária." },
