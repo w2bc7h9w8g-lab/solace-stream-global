@@ -8,7 +8,7 @@ import { languages } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/dashboard/refugee")({
   head: () => ({ meta: [
-    { title: "Minha área — Programa Refugiados UNESCO" },
+    { title: "Minha área — Solace Stream Global" },
     { name: "description", content: "Triagem inicial de orientação, sessões e recomendações de profissionais." },
     { property: "og:title", content: "Área da pessoa refugiada" },
     { property: "og:description", content: "Encontre apoio de forma segura." },
