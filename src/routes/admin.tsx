@@ -8,7 +8,7 @@ import { ai } from "@/lib/integrations";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [
-    { title: "Moderação e administração — Programa Refugiados UNESCO" },
+    { title: "Moderação e administração — Solace Stream Global" },
     { name: "description", content: "Fila de verificação, solicitações de suporte, moderação assistida e auditoria." },
     { property: "og:title", content: "Área administrativa" },
     { property: "og:description", content: "Moderação e auditoria da plataforma." },
