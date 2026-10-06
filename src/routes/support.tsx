@@ -7,8 +7,8 @@ export const Route = createFileRoute("/support")({
   head: () => ({ meta: [
     { title: "Suporte e emergência — Solace Stream Global" },
     { name: "description", content: "Encaminhamento para serviços de emergência locais e canais de suporte da plataforma." },
-    { property: "og:title", content: "Central de suporte e emergência" },
-    { property: "og:description", content: "Onde buscar ajuda imediata." },
+    { property: "og:title", content: "Suporte e emergência — Solace Stream Global" },
+    { property: "og:description", content: "Encaminhamento para serviços de emergência locais e canais de suporte da plataforma." }, { name: "twitter:title", content: "Suporte e emergência — Solace Stream Global" }, { name: "twitter:description", content: "Encaminhamento para serviços de emergência locais e canais de suporte da plataforma." },
   ] }),
   component: Support,
 });
