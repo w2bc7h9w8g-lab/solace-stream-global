@@ -11,8 +11,8 @@ export const Route = createFileRoute("/psychologists/")({
   head: () => ({ meta: [
     { title: "Encontrar psicólogo — Solace Stream Global" },
     { name: "description", content: "Busque psicólogos voluntários verificados por idioma, especialidade e disponibilidade." },
-    { property: "og:title", content: "Encontrar psicólogo voluntário" },
-    { property: "og:description", content: "Filtre por idioma, especialidade e disponibilidade." },
+    { property: "og:title", content: "Encontrar psicólogo — Solace Stream Global" },
+    { property: "og:description", content: "Busque psicólogos voluntários verificados por idioma, especialidade e disponibilidade." }, { name: "twitter:title", content: "Encontrar psicólogo — Solace Stream Global" }, { name: "twitter:description", content: "Busque psicólogos voluntários verificados por idioma, especialidade e disponibilidade." },
   ] }),
   component: Search,
 });
