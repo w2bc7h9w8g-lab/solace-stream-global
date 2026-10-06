@@ -12,7 +12,7 @@ export const Route = createFileRoute("/psychologists/$id")({
     return p;
   },
   head: ({ loaderData }) => ({ meta: [
-    { title: `${loaderData?.display_name ?? "Perfil"} — Programa Refugiados UNESCO` },
+    { title: `${loaderData?.display_name ?? "Perfil"} — Solace Stream Global` },
     { name: "description", content: loaderData?.bio.pt ?? "Perfil de psicólogo voluntário." },
     { property: "og:title", content: loaderData?.display_name ?? "Perfil" },
     { property: "og:description", content: loaderData?.bio.pt ?? "" },
