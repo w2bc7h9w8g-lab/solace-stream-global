@@ -14,8 +14,8 @@ export const Route = createFileRoute("/psychologists/$id")({
   head: ({ loaderData }) => ({ meta: [
     { title: `${loaderData?.display_name ?? "Perfil"} — Solace Stream Global` },
     { name: "description", content: loaderData?.bio.pt ?? "Perfil de psicólogo voluntário." },
-    { property: "og:title", content: loaderData?.display_name ?? "Perfil" },
-    { property: "og:description", content: loaderData?.bio.pt ?? "" },
+    { property: "og:title", content: `${loaderData?.display_name ?? "Perfil"} — Solace Stream Global` },
+    { property: "og:description", content: loaderData?.bio.pt ?? "Perfil de psicólogo voluntário." }, { name: "twitter:title", content: `${loaderData?.display_name ?? "Perfil"} — Solace Stream Global` }, { name: "twitter:description", content: loaderData?.bio.pt ?? "Perfil de psicólogo voluntário." },
   ] }),
   notFoundComponent: () => <div className="container-page py-20 text-center">Perfil não encontrado.</div>,
   errorComponent: () => <div className="container-page py-20 text-center">Erro ao carregar perfil.</div>,
