@@ -9,7 +9,7 @@ import type { Appointment } from "@/lib/types";
 
 export const Route = createFileRoute("/agenda")({
   head: () => ({ meta: [
-    { title: "Agenda e sessões — Programa Refugiados UNESCO" },
+    { title: "Agenda e sessões — Solace Stream Global" },
     { name: "description", content: "Gerencie solicitações, sessões confirmadas e links do Google Meet." },
     { property: "og:title", content: "Agenda e sessões" },
     { property: "og:description", content: "Agenda de atendimentos voluntários." },
