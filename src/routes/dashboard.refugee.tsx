@@ -10,8 +10,8 @@ export const Route = createFileRoute("/dashboard/refugee")({
   head: () => ({ meta: [
     { title: "Minha área — Solace Stream Global" },
     { name: "description", content: "Triagem inicial de orientação, sessões e recomendações de profissionais." },
-    { property: "og:title", content: "Área da pessoa refugiada" },
-    { property: "og:description", content: "Encontre apoio de forma segura." },
+    { property: "og:title", content: "Minha área — Solace Stream Global" },
+    { property: "og:description", content: "Triagem inicial de orientação, sessões e recomendações de profissionais." }, { name: "twitter:title", content: "Minha área — Solace Stream Global" }, { name: "twitter:description", content: "Triagem inicial de orientação, sessões e recomendações de profissionais." },
   ] }),
   component: RefugeeDash,
 });
