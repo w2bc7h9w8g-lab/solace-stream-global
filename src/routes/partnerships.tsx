@@ -7,7 +7,7 @@ import { MAX_SCHOLARSHIP_PCT } from "@/lib/types";
 
 export const Route = createFileRoute("/partnerships")({
   head: () => ({ meta: [
-    { title: "Universidades e bolsas — Programa Refugiados UNESCO" },
+    { title: "Universidades e bolsas — Solace Stream Global" },
     { name: "description", content: "Modelo de parceria com instituições de ensino para bolsas de até 15% a psicólogos voluntários." },
     { property: "og:title", content: "Parcerias e oportunidades de bolsa" },
     { property: "og:description", content: "Formação continuada para quem contribui." },
