@@ -5,7 +5,7 @@ import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/support")({
   head: () => ({ meta: [
-    { title: "Suporte e emergência — Programa Refugiados UNESCO" },
+    { title: "Suporte e emergência — Solace Stream Global" },
     { name: "description", content: "Encaminhamento para serviços de emergência locais e canais de suporte da plataforma." },
     { property: "og:title", content: "Central de suporte e emergência" },
     { property: "og:description", content: "Onde buscar ajuda imediata." },
