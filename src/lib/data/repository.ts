@@ -33,7 +33,14 @@ class MockRepository implements Repository {
       if (f.specialty && !p.specialties.includes(f.specialty)) return false;
       if (f.language && !p.languages.includes(f.language)) return false;
       if (f.population && !p.populations.includes(f.population)) return false;
-      if (f.availableWithinDays && !p.next_slots.some((s) => new Date(s).getTime() - NOW < f.availableWithinDays! * 864e5)) return false;
+      if (f.availableWithinDays) {
+        const horizon = f.availableWithinDays * 864e5;
+        const hasUpcomingSlot = p.next_slots.some((s) => {
+          const diff = new Date(s).getTime() - NOW;
+          return diff >= 0 && diff <= horizon;
+        });
+        if (!hasUpcomingSlot) return false;
+      }
       if (f.q) {
         const q = f.q.toLowerCase();
         if (!(p.display_name + p.bio.pt + p.bio.en + p.region).toLowerCase().includes(q)) return false;
