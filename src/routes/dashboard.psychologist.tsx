@@ -8,7 +8,7 @@ import { ai, clinicalStore } from "@/lib/integrations";
 
 export const Route = createFileRoute("/dashboard/psychologist")({
   head: () => ({ meta: [
-    { title: "Painel do psicólogo — Programa Refugiados UNESCO" },
+    { title: "Painel do psicólogo — Solace Stream Global" },
     { name: "description", content: "Sessões, pontos, verificação e resumo pós-atendimento assistido por IA." },
     { property: "og:title", content: "Painel do psicólogo" },
     { property: "og:description", content: "Gerencie seus atendimentos voluntários." },
