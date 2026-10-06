@@ -5,7 +5,7 @@ import { LOCALES, useLocale, useT, type Locale } from "@/lib/i18n";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({ meta: [
-    { title: "Privacidade e consentimento — Programa Refugiados UNESCO" },
+    { title: "Privacidade e consentimento — Solace Stream Global" },
     { name: "description", content: "Gerencie consentimentos, idioma, exportação e exclusão de dados (LGPD/GDPR)." },
     { property: "og:title", content: "Configurações e privacidade" },
     { property: "og:description", content: "Controle total sobre seus dados." },
