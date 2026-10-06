@@ -7,8 +7,8 @@ export const Route = createFileRoute("/settings")({
   head: () => ({ meta: [
     { title: "Privacidade e consentimento — Solace Stream Global" },
     { name: "description", content: "Gerencie consentimentos, idioma, exportação e exclusão de dados (LGPD/GDPR)." },
-    { property: "og:title", content: "Configurações e privacidade" },
-    { property: "og:description", content: "Controle total sobre seus dados." },
+    { property: "og:title", content: "Privacidade e consentimento — Solace Stream Global" },
+    { property: "og:description", content: "Gerencie consentimentos, idioma, exportação e exclusão de dados (LGPD/GDPR)." }, { name: "twitter:title", content: "Privacidade e consentimento — Solace Stream Global" }, { name: "twitter:description", content: "Gerencie consentimentos, idioma, exportação e exclusão de dados (LGPD/GDPR)." },
   ] }),
   component: Settings,
 });
