@@ -7,8 +7,8 @@ export const Route = createFileRoute("/")({
     meta: [
       { title: "Solace Stream Global — Apoio psicológico voluntário" },
       { name: "description", content: "Plataforma que conecta pessoas refugiadas a psicólogos voluntários verificados, com privacidade desde a concepção." },
-      { property: "og:title", content: "Solace Stream Global" },
-      { property: "og:description", content: "Apoio psicológico voluntário, seguro e multilíngue para pessoas refugiadas." },
+      { property: "og:title", content: "Solace Stream Global — Apoio psicológico voluntário" },
+      { property: "og:description", content: "Plataforma que conecta pessoas refugiadas a psicólogos voluntários verificados, com privacidade desde a concepção." }, { name: "twitter:title", content: "Solace Stream Global — Apoio psicológico voluntário" }, { name: "twitter:description", content: "Plataforma que conecta pessoas refugiadas a psicólogos voluntários verificados, com privacidade desde a concepção." },
     ],
   }),
   component: Home,
