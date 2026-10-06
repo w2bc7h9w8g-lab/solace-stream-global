@@ -7,8 +7,8 @@ export const Route = createFileRoute("/verification")({
   head: () => ({ meta: [
     { title: "Verificação profissional — Solace Stream Global" },
     { name: "description", content: "Envio seguro de registro profissional, identidade e checagem de segurança para psicólogos." },
-    { property: "og:title", content: "Verificação profissional" },
-    { property: "og:description", content: "Processo de verificação de psicólogos voluntários." },
+    { property: "og:title", content: "Verificação profissional — Solace Stream Global" },
+    { property: "og:description", content: "Envio seguro de registro profissional, identidade e checagem de segurança para psicólogos." }, { name: "twitter:title", content: "Verificação profissional — Solace Stream Global" }, { name: "twitter:description", content: "Envio seguro de registro profissional, identidade e checagem de segurança para psicólogos." },
   ] }),
   component: Verification,
 });
