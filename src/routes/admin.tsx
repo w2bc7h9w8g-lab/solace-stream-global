@@ -10,8 +10,8 @@ export const Route = createFileRoute("/admin")({
   head: () => ({ meta: [
     { title: "Moderação e administração — Solace Stream Global" },
     { name: "description", content: "Fila de verificação, solicitações de suporte, moderação assistida e auditoria." },
-    { property: "og:title", content: "Área administrativa" },
-    { property: "og:description", content: "Moderação e auditoria da plataforma." },
+    { property: "og:title", content: "Moderação e administração — Solace Stream Global" },
+    { property: "og:description", content: "Fila de verificação, solicitações de suporte, moderação assistida e auditoria." }, { name: "twitter:title", content: "Moderação e administração — Solace Stream Global" }, { name: "twitter:description", content: "Fila de verificação, solicitações de suporte, moderação assistida e auditoria." },
   ] }),
   loader: async () => ({ ver: await repo.listVerifications(), sup: await repo.listSupportRequests(), audit: await repo.listAuditEvents() }),
   component: Admin,
