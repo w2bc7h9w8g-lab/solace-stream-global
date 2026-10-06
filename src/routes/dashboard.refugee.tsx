@@ -19,7 +19,7 @@ export const Route = createFileRoute("/dashboard/refugee")({
 function RefugeeDash() {
   const t = useT();
   const { locale } = useLocale();
-  const [a, setA] = useState<Record<string, string>>({ topic: "sleep", distress: "medium", language: "pt", text: "" });
+  const [a, setA] = useState<{ topic: string; distress: string; language: string; text: string }>({ topic: "sleep", distress: "medium", language: "pt", text: "" });
   const [res, setRes] = useState<TriageResult | null>(null);
   const topics = [
     { v: "sleep", l: { pt: "Sono, preocupação, medo", en: "Sleep, worry, fear" } },
