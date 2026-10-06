@@ -5,7 +5,7 @@ import type {
 
 // FICTIONAL demonstration data. No real people or institutions.
 const d = (days: number, h = 10) => {
-  const x = new Date("2026-10-05T00:00:00Z");
+  const x = new Date();
   x.setUTCDate(x.getUTCDate() + days);
   x.setUTCHours(h);
   return x.toISOString();
