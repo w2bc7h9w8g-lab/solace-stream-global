@@ -9,8 +9,8 @@ export const Route = createFileRoute("/partnerships")({
   head: () => ({ meta: [
     { title: "Universidades e bolsas — Solace Stream Global" },
     { name: "description", content: "Modelo de parceria com instituições de ensino para bolsas de até 15% a psicólogos voluntários." },
-    { property: "og:title", content: "Parcerias e oportunidades de bolsa" },
-    { property: "og:description", content: "Formação continuada para quem contribui." },
+    { property: "og:title", content: "Universidades e bolsas — Solace Stream Global" },
+    { property: "og:description", content: "Modelo de parceria com instituições de ensino para bolsas de até 15% a psicólogos voluntários." }, { name: "twitter:title", content: "Universidades e bolsas — Solace Stream Global" }, { name: "twitter:description", content: "Modelo de parceria com instituições de ensino para bolsas de até 15% a psicólogos voluntários." },
   ] }),
   loader: async () => ({ unis: await repo.listUniversities(), opps: await repo.listScholarships() }),
   component: Partnerships,
