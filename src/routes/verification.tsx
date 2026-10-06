@@ -5,7 +5,7 @@ import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/verification")({
   head: () => ({ meta: [
-    { title: "Verificação profissional — Programa Refugiados UNESCO" },
+    { title: "Verificação profissional — Solace Stream Global" },
     { name: "description", content: "Envio seguro de registro profissional, identidade e checagem de segurança para psicólogos." },
     { property: "og:title", content: "Verificação profissional" },
     { property: "og:description", content: "Processo de verificação de psicólogos voluntários." },
