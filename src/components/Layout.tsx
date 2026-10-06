@@ -74,7 +74,7 @@ export function Layout({ children }: { children: ReactNode }) {
       <footer className="mt-16 bg-ink text-ink-foreground">
         <div className="container-page grid gap-6 py-10 text-sm md:grid-cols-3">
           <div>
-            <p className="font-display text-lg">Programa Refugiados UNESCO</p>
+            <p className="font-display text-lg">Solace Stream Global</p>
             <p className="mt-2 opacity-75">{t({ pt: "Projeto conceitual independente. Sem afiliação oficial com a UNESCO, universidades ou conselhos profissionais.", en: "Independent concept project. No official affiliation with UNESCO, universities or professional councils." })}</p>
           </div>
           <p className="opacity-75">{t({ pt: "Esta plataforma não presta atendimento de emergência. Em risco imediato, ligue para o serviço de emergência local.", en: "This platform does not provide emergency care. If in immediate danger, call your local emergency service." })}</p>
