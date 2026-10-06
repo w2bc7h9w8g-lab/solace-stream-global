@@ -24,7 +24,7 @@ export interface Repository {
   listAuditEvents(): Promise<AuditEvent[]>;
 }
 
-const NOW = new Date("2026-10-05T00:00:00Z").getTime();
+const NOW = Date.now();
 
 class MockRepository implements Repository {
   async listPsychologists(f: PsychologistFilters = {}) {
