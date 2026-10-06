@@ -8,8 +8,8 @@ export const Route = createFileRoute("/psychologist/onboarding")({
   head: () => ({ meta: [
     { title: "Cadastro de psicólogo voluntário — Solace Stream Global" },
     { name: "description", content: "Cadastro em etapas: dados profissionais, especialidades, idiomas, disponibilidade e formação." },
-    { property: "og:title", content: "Seja psicólogo voluntário" },
-    { property: "og:description", content: "Junte-se à rede de apoio psicológico para pessoas refugiadas." },
+    { property: "og:title", content: "Cadastro de psicólogo voluntário — Solace Stream Global" },
+    { property: "og:description", content: "Cadastro em etapas: dados profissionais, especialidades, idiomas, disponibilidade e formação." }, { name: "twitter:title", content: "Cadastro de psicólogo voluntário — Solace Stream Global" }, { name: "twitter:description", content: "Cadastro em etapas: dados profissionais, especialidades, idiomas, disponibilidade e formação." },
   ] }),
   component: Onboarding,
 });
