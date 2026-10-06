@@ -5,9 +5,9 @@ import { useT } from "@/lib/i18n";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Programa Refugiados UNESCO — Apoio psicológico voluntário" },
+      { title: "Solace Stream Global — Apoio psicológico voluntário" },
       { name: "description", content: "Plataforma que conecta pessoas refugiadas a psicólogos voluntários verificados, com privacidade desde a concepção." },
-      { property: "og:title", content: "Programa Refugiados UNESCO" },
+      { property: "og:title", content: "Solace Stream Global" },
       { property: "og:description", content: "Apoio psicológico voluntário, seguro e multilíngue para pessoas refugiadas." },
     ],
   }),
