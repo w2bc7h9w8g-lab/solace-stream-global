@@ -5,9 +5,9 @@ import type { AppRole } from "@/lib/types";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({ meta: [
-    { title: "Entrar ou cadastrar — Programa Refugiados UNESCO" },
+    { title: "Entrar ou cadastrar — Solace Stream Global" },
     { name: "description", content: "Acesse ou crie sua conta como pessoa refugiada, psicólogo voluntário ou parceiro." },
-    { property: "og:title", content: "Entrar — Programa Refugiados UNESCO" },
+    { property: "og:title", content: "Entrar — Solace Stream Global" },
     { property: "og:description", content: "Acesso seguro à plataforma de apoio psicológico." },
   ] }),
   component: AuthPage,
