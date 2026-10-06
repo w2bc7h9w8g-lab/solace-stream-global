@@ -38,7 +38,7 @@ function Ranking() {
             <div className="min-w-0 flex-1">
               <p className="font-semibold">{r.display_name}</p>
               <p className="text-xs text-muted-foreground">{r.region} · {r.sessions} {t({ pt: "sessões", en: "sessions" })}</p>
-              <div className="mt-1 flex flex-wrap gap-1">{r.badges.map((b) => <span key={b} className="chip-accent">{t(BADGES[b])}</span>)}</div>
+              <div className="mt-1 flex flex-wrap gap-1">{r.badges.map((b) => <span key={b} className="chip-accent">{t(BADGES[b] ?? { pt: b, en: b })}</span>)}</div>
             </div>
             <p className="font-display text-xl font-semibold text-primary">{r.points.toLocaleString()}<span className="ml-1 text-xs text-muted-foreground">pts</span></p>
           </li>))}

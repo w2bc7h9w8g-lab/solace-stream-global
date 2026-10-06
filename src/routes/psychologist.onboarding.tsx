@@ -29,8 +29,8 @@ function Onboarding() {
   const t = useT();
   const { locale } = useLocale();
   const [step, setStep] = useState(0);
-  const [sel, setSel] = useState<Record<string, string[]>>({ spec: [], lang: [], pop: [], days: [], interests: [] });
-  const tog = (k: string, v: string) => setSel((s) => ({ ...s, [k]: s[k].includes(v) ? s[k].filter((x) => x !== v) : [...s[k], v] }));
+  const [sel, setSel] = useState<Record<'spec' | 'lang' | 'pop' | 'days' | 'interests', string[]>>({ spec: [], lang: [], pop: [], days: [], interests: [] });
+  const tog = (k: keyof typeof sel, v: string) => setSel((s) => ({ ...s, [k]: s[k].includes(v) ? s[k].filter((x) => x !== v) : [...s[k], v] }));
   const steps = [
     t({ pt: "Dados básicos", en: "Basics" }), t({ pt: "Especialidades", en: "Specialties" }), t({ pt: "Idiomas e públicos", en: "Languages & populations" }),
     t({ pt: "Disponibilidade", en: "Availability" }), t({ pt: "Formação", en: "Training" }), t({ pt: "Verificação", en: "Verification" }),

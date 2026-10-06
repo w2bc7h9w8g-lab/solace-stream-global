@@ -28,9 +28,10 @@ const CRISIS = /suic|morrer|matar|kill|die|end my life|self.?harm/i;
 export const ai: AIAssistant = {
   async triage(a) {
     const text = Object.values(a).join(" ");
-    const urgency = CRISIS.test(text) ? "crisis_signals" : a.distress === "high" ? "priority" : "routine";
+    const urgency = CRISIS.test(text) ? "crisis_signals" : a['distress'] === "high" ? "priority" : "routine";
     const map: Record<string, string> = { sleep: "anxiety", loss: "grief", violence: "trauma", family: "family", adapt: "acculturation" };
-    return { urgency, suggestedSpecialties: [map[a.topic] ?? "anxiety"], suggestedLanguages: a.language ? [a.language] : [],
+    const language = a['language'];
+    return { urgency, suggestedSpecialties: [map[a['topic'] ?? ''] ?? "anxiety"], suggestedLanguages: language ? [language] : [],
       disclaimer: "Orientação preliminar automatizada. Não é diagnóstico." };
   },
   async draftSessionSummary(b) {

@@ -1,6 +1,6 @@
 @import "tailwindcss" source(none);
-@source "../src";
 @import "tw-animate-css";
+@source "../src";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -76,10 +76,13 @@
   :focus-visible { outline: 2px solid var(--color-ring); outline-offset: 2px; }
 }
 
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors disabled:opacity-50;
+}
+
 @layer components {
   .container-page { @apply mx-auto w-full max-w-6xl px-4 sm:px-6; }
   .card { @apply rounded-xl border bg-card p-5 text-card-foreground; box-shadow: var(--shadow-soft); }
-  .btn { @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors disabled:opacity-50; }
   .btn-primary { @apply btn bg-primary text-primary-foreground hover:bg-primary/90; }
   .btn-accent { @apply btn bg-accent text-accent-foreground hover:bg-accent/90; }
   .btn-outline { @apply btn border bg-card text-foreground hover:bg-muted; }
