@@ -17,7 +17,7 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({ meta: [
     { charSet: "utf-8" }, { name: "viewport", content: "width=device-width, initial-scale=1" },
-    { name: "theme-color", content: "#2d5f6e" }, { title: "Solace Stream Global" },
+    { name: "theme-color", content: "#247a52" }, { title: "Solace Stream Global" },
     { name: "description", content: "Plataforma conceitual independente que conecta pessoas refugiadas a psicólogos voluntários verificados." },
     { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }, { name: "twitter:title", content: "Solace Stream Global" }, { name: "twitter:description", content: "Plataforma conceitual independente que conecta pessoas refugiadas a psicólogos voluntários verificados." },
   ], links: [
