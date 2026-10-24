@@ -267,7 +267,11 @@ create policy "public psychologist languages" on public.psychologist_languages f
   using (exists (select 1 from public.psychologist_profiles p where p.id = psychologist_id and p.is_public));
 create policy "own psychologist languages" on public.psychologist_languages for all to authenticated
   using (psychologist_id = auth.uid()) with check (psychologist_id = auth.uid());
-create policy "public active universities" on public.universities for select to anon, authenticated using (partnership_status = 'active' or owner_id = auth.uid() or public.has_role(auth.uid(), 'admin'));
+create policy "public active universities" on public.universities for select to anon, authenticated
+  using (partnership_status = 'active' or owner_id = auth.uid());
+create policy "admin manages universities" on public.universities for all to authenticated
+  using (public.has_role(auth.uid(), 'admin'))
+  with check (public.has_role(auth.uid(), 'admin'));
 create policy "university owner manages own record" on public.universities for all to authenticated
   using (owner_id = auth.uid()) with check (owner_id = auth.uid());
 create policy "own psychologist interests" on public.psychologist_interests for all to authenticated
