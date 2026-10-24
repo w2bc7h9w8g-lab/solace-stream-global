@@ -47,6 +47,17 @@ begin
         using errcode = '42501';
     end if;
   end if;
+
+  if new.is_public and not exists (
+    select 1
+    from public.psychologist_verifications v
+    where v.psychologist_id = new.id
+      and v.status = 'verified'
+  ) then
+    raise exception 'Only professionally verified psychologists can be published.'
+      using errcode = '42501';
+  end if;
+  end if;
   return new;
 end;
 $guard$;
@@ -118,6 +129,9 @@ create policy "own profile" on public.profiles for all to authenticated using (i
 create policy "read own roles" on public.user_roles for select to authenticated using (user_id = auth.uid());
 create policy "public verified psychologists" on public.psychologist_profiles for select to anon, authenticated using (is_public);
 create policy "own psychologist profile" on public.psychologist_profiles for all to authenticated using (id = auth.uid()) with check (id = auth.uid());
+create policy "admin manages psychologist profiles" on public.psychologist_profiles for all to authenticated
+  using (public.has_role(auth.uid(), 'admin'))
+  with check (public.has_role(auth.uid(), 'admin'));
 create policy "own verification read" on public.psychologist_verifications for select to authenticated using (psychologist_id = auth.uid() or public.has_role(auth.uid(),'admin'));
 create policy "own verification submit" on public.psychologist_verifications for insert to authenticated with check (psychologist_id = auth.uid() and status = 'pending');
 create policy "admin verification review" on public.psychologist_verifications for update to authenticated using (public.has_role(auth.uid(),'admin'));
