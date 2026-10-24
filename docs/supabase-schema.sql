@@ -233,7 +233,9 @@ create policy "admin manages psychologist profiles" on public.psychologist_profi
   with check (public.has_role(auth.uid(), 'admin'));
 create policy "own verification read" on public.psychologist_verifications for select to authenticated using (psychologist_id = auth.uid() or public.has_role(auth.uid(),'admin'));
 create policy "own verification submit" on public.psychologist_verifications for insert to authenticated with check (psychologist_id = auth.uid() and status = 'pending');
-create policy "admin verification review" on public.psychologist_verifications for update to authenticated using (public.has_role(auth.uid(),'admin'));
+create policy "admin verification review" on public.psychologist_verifications for update to authenticated
+  using (public.has_role(auth.uid(),'admin'))
+  with check (public.has_role(auth.uid(),'admin'));
 create policy "own refugee profile" on public.refugee_profiles for all to authenticated using (id = auth.uid()) with check (id = auth.uid());
 create policy "participants read appointments" on public.appointments for select to authenticated using (psychologist_id = auth.uid() or refugee_id = auth.uid());
 create policy "refugee requests appointment" on public.appointments for insert to authenticated
@@ -241,9 +243,10 @@ create policy "refugee requests appointment" on public.appointments for insert t
     refugee_id = auth.uid()
     and status = 'requested'
     and exists (
+      -- Publication is guarded by a trigger that requires verified status;
+      -- querying the private verification table here would be blocked by its RLS.
       select 1 from public.psychologist_profiles p
-      join public.psychologist_verifications v on v.psychologist_id = p.id
-      where p.id = public.appointments.psychologist_id and p.is_public and v.status = 'verified'
+      where p.id = public.appointments.psychologist_id and p.is_public
     )
   );
 create policy "psychologist manages appointment" on public.appointments for update to authenticated
