@@ -29,6 +29,32 @@ create table public.psychologist_profiles (
   region text, years_experience int, populations text[] default '{}',
   is_public boolean not null default false     -- true only once verified
 );
+-- Prevent self-publication: only an admin or trusted service role may set is_public.
+create or replace function public.guard_psychologist_publication()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $
+begin
+  if coalesce(auth.role(), '') <> 'service_role'
+     and not coalesce(public.has_role(auth.uid(), 'admin'), false) then
+    if tg_op = 'INSERT' and new.is_public then
+      raise exception 'Psychologist profiles must be published by an administrator.'
+        using errcode = '42501';
+    elsif tg_op = 'UPDATE' and new.is_public is distinct from old.is_public then
+      raise exception 'Only an administrator can change psychologist publication status.'
+        using errcode = '42501';
+    end if;
+  end if;
+  return new;
+end;
+$;
+
+create trigger guard_psychologist_publication
+before insert or update of is_public on public.psychologist_profiles
+for each row execute function public.guard_psychologist_publication();
+
 create table public.psychologist_verifications (   -- PRIVATE: never readable by public
   psychologist_id uuid primary key references public.psychologist_profiles(id) on delete cascade,
   status public.verification_status not null default 'pending',
