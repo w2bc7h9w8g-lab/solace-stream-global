@@ -82,10 +82,6 @@ begin
 end;
 $unpublish$;
 
-create trigger unpublish_unverified_psychologist
-after update of status on public.psychologist_verifications
-for each row execute function public.unpublish_unverified_psychologist();
-
 create table public.psychologist_verifications (   -- PRIVATE: never readable by public
   psychologist_id uuid primary key references public.psychologist_profiles(id) on delete cascade,
   status public.verification_status not null default 'pending',
@@ -94,6 +90,10 @@ create table public.psychologist_verifications (   -- PRIVATE: never readable by
   background_check text default 'pending',
   submitted_at timestamptz default now(), reviewed_by uuid, reviewed_at timestamptz
 );
+
+create trigger unpublish_unverified_psychologist
+after update of status on public.psychologist_verifications
+for each row execute function public.unpublish_unverified_psychologist();
 create table public.specialties (id uuid primary key default gen_random_uuid(), slug text unique not null, name jsonb not null);
 create table public.psychologist_specialties (psychologist_id uuid references public.psychologist_profiles(id) on delete cascade, specialty_id uuid references public.specialties(id), primary key (psychologist_id, specialty_id));
 create table public.languages (code text primary key, name text not null);
