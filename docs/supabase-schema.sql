@@ -19,9 +19,11 @@ create table public.user_roles (
   unique (user_id, role)
 );
 create or replace function public.has_role(_user_id uuid, _role public.app_role)
-returns boolean language sql stable security definer set search_path = public as $$
+returns boolean language sql stable security definer set search_path = public as $has_role$
   select exists (select 1 from public.user_roles where user_id = _user_id and role = _role)
-$$;
+$has_role$;
+revoke all on function public.has_role(uuid, public.app_role) from public, anon;
+grant execute on function public.has_role(uuid, public.app_role) to authenticated, service_role;
 
 create table public.psychologist_profiles (
   id uuid primary key references public.profiles(id) on delete cascade,
@@ -29,6 +31,59 @@ create table public.psychologist_profiles (
   region text, years_experience int, populations text[] default '{}',
   is_public boolean not null default false     -- true only once verified
 );
+-- Prevent self-publication: only an admin or trusted service role may set is_public.
+create or replace function public.guard_psychologist_publication()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $guard$
+begin
+  if coalesce(auth.role(), '') <> 'service_role'
+     and not coalesce(public.has_role(auth.uid(), 'admin'), false) then
+    if tg_op = 'INSERT' and new.is_public then
+      raise exception 'Psychologist profiles must be published by an administrator.'
+        using errcode = '42501';
+    elsif tg_op = 'UPDATE' and new.is_public is distinct from old.is_public then
+      raise exception 'Only an administrator can change psychologist publication status.'
+        using errcode = '42501';
+    end if;
+  end if;
+
+  if new.is_public and not exists (
+    select 1
+    from public.psychologist_verifications v
+    where v.psychologist_id = new.id
+      and v.status = 'verified'
+  ) then
+    raise exception 'Only professionally verified psychologists can be published.'
+      using errcode = '42501';
+  end if;
+  return new;
+end;
+$guard$;
+
+create trigger guard_psychologist_publication
+before insert or update of is_public on public.psychologist_profiles
+for each row execute function public.guard_psychologist_publication();
+
+-- If a previously verified professional is rejected, hide their profile automatically.
+create or replace function public.unpublish_unverified_psychologist()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $unpublish$
+begin
+  if new.status <> 'verified' and old.status = 'verified' then
+    update public.psychologist_profiles
+      set is_public = false
+      where id = new.psychologist_id and is_public = true;
+  end if;
+  return new;
+end;
+$unpublish$;
+
 create table public.psychologist_verifications (   -- PRIVATE: never readable by public
   psychologist_id uuid primary key references public.psychologist_profiles(id) on delete cascade,
   status public.verification_status not null default 'pending',
@@ -37,6 +92,10 @@ create table public.psychologist_verifications (   -- PRIVATE: never readable by
   background_check text default 'pending',
   submitted_at timestamptz default now(), reviewed_by uuid, reviewed_at timestamptz
 );
+
+create trigger unpublish_unverified_psychologist
+after update of status on public.psychologist_verifications
+for each row execute function public.unpublish_unverified_psychologist();
 create table public.specialties (id uuid primary key default gen_random_uuid(), slug text unique not null, name jsonb not null);
 create table public.psychologist_specialties (psychologist_id uuid references public.psychologist_profiles(id) on delete cascade, specialty_id uuid references public.specialties(id), primary key (psychologist_id, specialty_id));
 create table public.languages (code text primary key, name text not null);
@@ -51,7 +110,67 @@ create table public.appointments (
   status public.appointment_status not null default 'requested',
   meet_link text, clinical_note_ref text,  -- pointer to external secure store only
   language text
-);
+); 
+-- Prevent participants from rewriting appointment identity or schedule through broad UPDATE grants.
+create or replace function public.guard_appointment_updates()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $appointment_guard$
+begin
+  if coalesce(auth.role(), '') = 'service_role' then
+    return new;
+  end if;
+
+  if new.id is distinct from old.id
+     or new.psychologist_id is distinct from old.psychologist_id
+     or new.refugee_id is distinct from old.refugee_id
+     or new.starts_at is distinct from old.starts_at
+     or new.duration_min is distinct from old.duration_min
+     or new.language is distinct from old.language
+     or new.clinical_note_ref is distinct from old.clinical_note_ref then
+    raise exception 'Appointment identity, schedule, language, and clinical reference are immutable to participants.'
+      using errcode = '42501';
+  end if;
+
+  if auth.uid() = old.refugee_id then
+    if new.status <> 'cancelled' or old.status not in ('requested', 'confirmed') then
+      raise exception 'Refugees may only cancel requested or confirmed appointments.'
+        using errcode = '42501';
+    end if;
+    if new.meet_link is distinct from old.meet_link then
+      raise exception 'Refugees cannot change meeting links.'
+        using errcode = '42501';
+    end if;
+  elsif auth.uid() = old.psychologist_id then
+    if new.status not in ('confirmed', 'completed', 'cancelled') then
+      raise exception 'Invalid appointment status for psychologist.'
+        using errcode = '42501';
+    end if;
+    if old.status = 'requested' and new.status not in ('confirmed', 'cancelled') then
+      raise exception 'Requested appointments can only be confirmed or cancelled.'
+        using errcode = '42501';
+    end if;
+    if old.status = 'confirmed' and new.status not in ('completed', 'cancelled', 'confirmed') then
+      raise exception 'Confirmed appointments can only be completed or cancelled.'
+        using errcode = '42501';
+    end if;
+    if old.status in ('completed', 'cancelled') and new.status is distinct from old.status then
+      raise exception 'Completed or cancelled appointments cannot be reopened.'
+        using errcode = '42501';
+    end if;
+  else
+    raise exception 'Only appointment participants may update appointments.'
+      using errcode = '42501';
+  end if;
+  return new;
+end;
+$appointment_guard$;
+
+create trigger guard_appointment_updates
+before update on public.appointments
+for each row execute function public.guard_appointment_updates();
 create table public.universities (id uuid primary key default gen_random_uuid(), name text not null, country text, partnership_status text default 'prospective', owner_id uuid references auth.users(id));
 create table public.scholarship_opportunities (
   id uuid primary key default gen_random_uuid(), university_id uuid not null references public.universities(id) on delete cascade,
@@ -60,7 +179,7 @@ create table public.scholarship_opportunities (
 );
 create table public.psychologist_interests (psychologist_id uuid references public.psychologist_profiles(id) on delete cascade, area text not null, opportunity_id uuid references public.scholarship_opportunities(id), created_at timestamptz default now(), primary key (psychologist_id, area));
 create table public.points_ledger (id uuid primary key default gen_random_uuid(), psychologist_id uuid not null references public.psychologist_profiles(id) on delete cascade, delta int not null, reason text not null, created_at timestamptz default now());
-create view public.leaderboard with (security_invoker = on) as
+create view public.leaderboard with (security_invoker = off) as
   select p.id as psychologist_id, pr.display_name, coalesce(sum(l.delta),0) as points
   from public.psychologist_profiles p join public.profiles pr on pr.id = p.id
   left join public.points_ledger l on l.psychologist_id = p.id
@@ -69,9 +188,20 @@ create table public.support_requests (id uuid primary key default gen_random_uui
 create table public.consents (user_id uuid references auth.users(id) on delete cascade, key text not null, granted boolean not null, updated_at timestamptz default now(), primary key (user_id, key));
 create table public.audit_events (id uuid primary key default gen_random_uuid(), actor uuid, action text not null, target text, created_at timestamptz default now());
 
--- Grants
-grant select on public.specialties, public.languages, public.psychologist_profiles, public.psychologist_specialties, public.psychologist_languages, public.availability, public.universities, public.scholarship_opportunities, public.points_ledger, public.leaderboard to anon, authenticated;
-grant select, insert, update, delete on all tables in schema public to authenticated;
+-- Explicit grants: do not grant blanket write access to every table.
+revoke all on all tables in schema public from anon, authenticated;
+grant select on public.specialties, public.languages, public.psychologist_profiles,
+  public.psychologist_specialties, public.psychologist_languages, public.availability,
+  public.universities, public.scholarship_opportunities, public.leaderboard
+  to anon, authenticated;
+grant select, insert, update, delete on public.profiles, public.psychologist_profiles,
+  public.psychologist_specialties, public.psychologist_languages, public.refugee_profiles,
+  public.availability, public.appointments, public.psychologist_verifications,
+  public.universities, public.scholarship_opportunities, public.psychologist_interests,
+  public.consents to authenticated;
+grant select on public.user_roles, public.support_requests, public.audit_events to authenticated;
+grant insert on public.support_requests to authenticated;
+grant select on public.points_ledger to authenticated;
 grant all on all tables in schema public to service_role;
 
 -- RLS
@@ -87,25 +217,75 @@ alter table public.audit_events enable row level security;
 alter table public.points_ledger enable row level security;
 alter table public.scholarship_opportunities enable row level security;
 alter table public.availability enable row level security;
+alter table public.specialties enable row level security;
+alter table public.psychologist_specialties enable row level security;
+alter table public.languages enable row level security;
+alter table public.psychologist_languages enable row level security;
+alter table public.universities enable row level security;
+alter table public.psychologist_interests enable row level security;
 
 create policy "own profile" on public.profiles for all to authenticated using (id = auth.uid()) with check (id = auth.uid());
 create policy "read own roles" on public.user_roles for select to authenticated using (user_id = auth.uid());
 create policy "public verified psychologists" on public.psychologist_profiles for select to anon, authenticated using (is_public);
 create policy "own psychologist profile" on public.psychologist_profiles for all to authenticated using (id = auth.uid()) with check (id = auth.uid());
+create policy "admin manages psychologist profiles" on public.psychologist_profiles for all to authenticated
+  using (public.has_role(auth.uid(), 'admin'))
+  with check (public.has_role(auth.uid(), 'admin'));
 create policy "own verification read" on public.psychologist_verifications for select to authenticated using (psychologist_id = auth.uid() or public.has_role(auth.uid(),'admin'));
 create policy "own verification submit" on public.psychologist_verifications for insert to authenticated with check (psychologist_id = auth.uid() and status = 'pending');
-create policy "admin verification review" on public.psychologist_verifications for update to authenticated using (public.has_role(auth.uid(),'admin'));
+create policy "admin verification review" on public.psychologist_verifications for update to authenticated
+  using (public.has_role(auth.uid(),'admin'))
+  with check (public.has_role(auth.uid(),'admin'));
 create policy "own refugee profile" on public.refugee_profiles for all to authenticated using (id = auth.uid()) with check (id = auth.uid());
 create policy "participants read appointments" on public.appointments for select to authenticated using (psychologist_id = auth.uid() or refugee_id = auth.uid());
-create policy "refugee requests appointment" on public.appointments for insert to authenticated with check (refugee_id = auth.uid() and status = 'requested');
-create policy "psychologist manages appointment" on public.appointments for update to authenticated using (psychologist_id = auth.uid());
+create policy "refugee requests appointment" on public.appointments for insert to authenticated
+  with check (
+    refugee_id = auth.uid()
+    and status = 'requested'
+    and exists (
+      -- Publication is guarded by a trigger that requires verified status;
+      -- querying the private verification table here would be blocked by its RLS.
+      select 1 from public.psychologist_profiles p
+      where p.id = public.appointments.psychologist_id and p.is_public
+    )
+  );
+create policy "psychologist manages appointment" on public.appointments for update to authenticated
+  using (psychologist_id = auth.uid())
+  with check (psychologist_id = auth.uid());
+create policy "refugee cancels own appointment" on public.appointments for update to authenticated
+  using (refugee_id = auth.uid() and status in ('requested', 'confirmed'))
+  with check (refugee_id = auth.uid() and status = 'cancelled');
 create policy "own consents" on public.consents for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
-create policy "create support" on public.support_requests for insert to authenticated with check (user_id = auth.uid());
+create policy "create support" on public.support_requests for insert to authenticated
+  with check (user_id = auth.uid() and status = 'open');
 create policy "staff read support" on public.support_requests for select to authenticated using (user_id = auth.uid() or public.has_role(auth.uid(),'moderator') or public.has_role(auth.uid(),'admin'));
 create policy "admin audit" on public.audit_events for select to authenticated using (public.has_role(auth.uid(),'admin'));
-create policy "public points" on public.points_ledger for select to anon, authenticated using (true);  -- writes only via service_role
+create policy "public catalog specialties" on public.specialties for select to anon, authenticated using (true);
+create policy "public catalog languages" on public.languages for select to anon, authenticated using (true);
+create policy "public psychologist specialties" on public.psychologist_specialties for select to anon, authenticated
+  using (exists (select 1 from public.psychologist_profiles p where p.id = psychologist_id and p.is_public));
+create policy "own psychologist specialties" on public.psychologist_specialties for all to authenticated
+  using (psychologist_id = auth.uid()) with check (psychologist_id = auth.uid());
+create policy "public psychologist languages" on public.psychologist_languages for select to anon, authenticated
+  using (exists (select 1 from public.psychologist_profiles p where p.id = psychologist_id and p.is_public));
+create policy "own psychologist languages" on public.psychologist_languages for all to authenticated
+  using (psychologist_id = auth.uid()) with check (psychologist_id = auth.uid());
+create policy "public active universities" on public.universities for select to anon, authenticated
+  using (partnership_status = 'active' or owner_id = auth.uid());
+create policy "admin manages universities" on public.universities for all to authenticated
+  using (public.has_role(auth.uid(), 'admin'))
+  with check (public.has_role(auth.uid(), 'admin'));
+create policy "university owner manages own record" on public.universities for all to authenticated
+  using (owner_id = auth.uid()) with check (owner_id = auth.uid());
+create policy "own psychologist interests" on public.psychologist_interests for all to authenticated
+  using (psychologist_id = auth.uid()) with check (psychologist_id = auth.uid());
+create policy "own points ledger" on public.points_ledger for select to authenticated
+  using (psychologist_id = auth.uid() or public.has_role(auth.uid(), 'admin'));
 create policy "public opportunities" on public.scholarship_opportunities for select to anon, authenticated using (true);
 create policy "partner manages opportunities" on public.scholarship_opportunities for all to authenticated
-  using (exists (select 1 from public.universities u where u.id = university_id and u.owner_id = auth.uid()));
-create policy "public availability" on public.availability for select to anon, authenticated using (true);
-create policy "own availability" on public.availability for all to authenticated using (psychologist_id = auth.uid()) with check (psychologist_id = auth.uid());
+  using (exists (select 1 from public.universities u where u.id = university_id and u.owner_id = auth.uid()))
+  with check (exists (select 1 from public.universities u where u.id = university_id and u.owner_id = auth.uid()));
+create policy "public availability" on public.availability for select to anon, authenticated
+  using (exists (select 1 from public.psychologist_profiles p where p.id = psychologist_id and p.is_public));
+create policy "own availability" on public.availability for all to authenticated
+  using (psychologist_id = auth.uid()) with check (psychologist_id = auth.uid());
