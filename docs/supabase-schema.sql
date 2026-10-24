@@ -65,6 +65,27 @@ create trigger guard_psychologist_publication
 before insert or update of is_public on public.psychologist_profiles
 for each row execute function public.guard_psychologist_publication();
 
+-- If a previously verified professional is rejected, hide their profile automatically.
+create or replace function public.unpublish_unverified_psychologist()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $unpublish$
+begin
+  if new.status <> 'verified' and old.status = 'verified' then
+    update public.psychologist_profiles
+      set is_public = false
+      where id = new.psychologist_id and is_public = true;
+  end if;
+  return new;
+end;
+$unpublish$;
+
+create trigger unpublish_unverified_psychologist
+after update of status on public.psychologist_verifications
+for each row execute function public.unpublish_unverified_psychologist();
+
 create table public.psychologist_verifications (   -- PRIVATE: never readable by public
   psychologist_id uuid primary key references public.psychologist_profiles(id) on delete cascade,
   status public.verification_status not null default 'pending',
@@ -153,10 +174,22 @@ create policy "own verification submit" on public.psychologist_verifications for
 create policy "admin verification review" on public.psychologist_verifications for update to authenticated using (public.has_role(auth.uid(),'admin'));
 create policy "own refugee profile" on public.refugee_profiles for all to authenticated using (id = auth.uid()) with check (id = auth.uid());
 create policy "participants read appointments" on public.appointments for select to authenticated using (psychologist_id = auth.uid() or refugee_id = auth.uid());
-create policy "refugee requests appointment" on public.appointments for insert to authenticated with check (refugee_id = auth.uid() and status = 'requested');
-create policy "psychologist manages appointment" on public.appointments for update to authenticated using (psychologist_id = auth.uid());
+create policy "refugee requests appointment" on public.appointments for insert to authenticated
+  with check (
+    refugee_id = auth.uid()
+    and status = 'requested'
+    and exists (
+      select 1 from public.psychologist_profiles p
+      join public.psychologist_verifications v on v.psychologist_id = p.id
+      where p.id = psychologist_id and p.is_public and v.status = 'verified'
+    )
+  );
+create policy "psychologist manages appointment" on public.appointments for update to authenticated
+  using (psychologist_id = auth.uid())
+  with check (psychologist_id = auth.uid());
 create policy "own consents" on public.consents for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
-create policy "create support" on public.support_requests for insert to authenticated with check (user_id = auth.uid());
+create policy "create support" on public.support_requests for insert to authenticated
+  with check (user_id = auth.uid() and status = 'open');
 create policy "staff read support" on public.support_requests for select to authenticated using (user_id = auth.uid() or public.has_role(auth.uid(),'moderator') or public.has_role(auth.uid(),'admin'));
 create policy "admin audit" on public.audit_events for select to authenticated using (public.has_role(auth.uid(),'admin'));
 create policy "public catalog specialties" on public.specialties for select to anon, authenticated using (true);
