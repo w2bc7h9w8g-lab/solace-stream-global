@@ -243,7 +243,7 @@ create policy "refugee requests appointment" on public.appointments for insert t
     and exists (
       select 1 from public.psychologist_profiles p
       join public.psychologist_verifications v on v.psychologist_id = p.id
-      where p.id = psychologist_id and p.is_public and v.status = 'verified'
+      where p.id = public.appointments.psychologist_id and p.is_public and v.status = 'verified'
     )
   );
 create policy "psychologist manages appointment" on public.appointments for update to authenticated
