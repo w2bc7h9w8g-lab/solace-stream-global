@@ -19,9 +19,11 @@ create table public.user_roles (
   unique (user_id, role)
 );
 create or replace function public.has_role(_user_id uuid, _role public.app_role)
-returns boolean language sql stable security definer set search_path = public as $$
+returns boolean language sql stable security definer set search_path = public as $
   select exists (select 1 from public.user_roles where user_id = _user_id and role = _role)
-$$;
+$;
+revoke all on function public.has_role(uuid, public.app_role) from public, anon;
+grant execute on function public.has_role(uuid, public.app_role) to authenticated, service_role;
 
 create table public.psychologist_profiles (
   id uuid primary key references public.profiles(id) on delete cascade,
@@ -108,7 +110,67 @@ create table public.appointments (
   status public.appointment_status not null default 'requested',
   meet_link text, clinical_note_ref text,  -- pointer to external secure store only
   language text
-);
+); 
+-- Prevent participants from rewriting appointment identity or schedule through broad UPDATE grants.
+create or replace function public.guard_appointment_updates()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $appointment_guard$
+begin
+  if coalesce(auth.role(), '') = 'service_role' then
+    return new;
+  end if;
+
+  if new.id is distinct from old.id
+     or new.psychologist_id is distinct from old.psychologist_id
+     or new.refugee_id is distinct from old.refugee_id
+     or new.starts_at is distinct from old.starts_at
+     or new.duration_min is distinct from old.duration_min
+     or new.language is distinct from old.language
+     or new.clinical_note_ref is distinct from old.clinical_note_ref then
+    raise exception 'Appointment identity, schedule, language, and clinical reference are immutable to participants.'
+      using errcode = '42501';
+  end if;
+
+  if auth.uid() = old.refugee_id then
+    if new.status <> 'cancelled' or old.status not in ('requested', 'confirmed') then
+      raise exception 'Refugees may only cancel requested or confirmed appointments.'
+        using errcode = '42501';
+    end if;
+    if new.meet_link is distinct from old.meet_link then
+      raise exception 'Refugees cannot change meeting links.'
+        using errcode = '42501';
+    end if;
+  elsif auth.uid() = old.psychologist_id then
+    if new.status not in ('confirmed', 'completed', 'cancelled') then
+      raise exception 'Invalid appointment status for psychologist.'
+        using errcode = '42501';
+    end if;
+    if old.status = 'requested' and new.status not in ('confirmed', 'cancelled') then
+      raise exception 'Requested appointments can only be confirmed or cancelled.'
+        using errcode = '42501';
+    end if;
+    if old.status = 'confirmed' and new.status not in ('completed', 'cancelled', 'confirmed') then
+      raise exception 'Confirmed appointments can only be completed or cancelled.'
+        using errcode = '42501';
+    end if;
+    if old.status in ('completed', 'cancelled') and new.status is distinct from old.status then
+      raise exception 'Completed or cancelled appointments cannot be reopened.'
+        using errcode = '42501';
+    end if;
+  else
+    raise exception 'Only appointment participants may update appointments.'
+      using errcode = '42501';
+  end if;
+  return new;
+end;
+$appointment_guard$;
+
+create trigger guard_appointment_updates
+before update on public.appointments
+for each row execute function public.guard_appointment_updates();
 create table public.universities (id uuid primary key default gen_random_uuid(), name text not null, country text, partnership_status text default 'prospective', owner_id uuid references auth.users(id));
 create table public.scholarship_opportunities (
   id uuid primary key default gen_random_uuid(), university_id uuid not null references public.universities(id) on delete cascade,
@@ -187,6 +249,9 @@ create policy "refugee requests appointment" on public.appointments for insert t
 create policy "psychologist manages appointment" on public.appointments for update to authenticated
   using (psychologist_id = auth.uid())
   with check (psychologist_id = auth.uid());
+create policy "refugee cancels own appointment" on public.appointments for update to authenticated
+  using (refugee_id = auth.uid() and status in ('requested', 'confirmed'))
+  with check (refugee_id = auth.uid() and status = 'cancelled');
 create policy "own consents" on public.consents for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
 create policy "create support" on public.support_requests for insert to authenticated
   with check (user_id = auth.uid() and status = 'open');
@@ -202,7 +267,7 @@ create policy "public psychologist languages" on public.psychologist_languages f
   using (exists (select 1 from public.psychologist_profiles p where p.id = psychologist_id and p.is_public));
 create policy "own psychologist languages" on public.psychologist_languages for all to authenticated
   using (psychologist_id = auth.uid()) with check (psychologist_id = auth.uid());
-create policy "public universities" on public.universities for select to anon, authenticated using (true);
+create policy "public active universities" on public.universities for select to anon, authenticated using (partnership_status = 'active' or owner_id = auth.uid() or public.has_role(auth.uid(), 'admin'));
 create policy "university owner manages own record" on public.universities for all to authenticated
   using (owner_id = auth.uid()) with check (owner_id = auth.uid());
 create policy "own psychologist interests" on public.psychologist_interests for all to authenticated
