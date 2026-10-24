@@ -96,7 +96,7 @@ create table public.scholarship_opportunities (
 );
 create table public.psychologist_interests (psychologist_id uuid references public.psychologist_profiles(id) on delete cascade, area text not null, opportunity_id uuid references public.scholarship_opportunities(id), created_at timestamptz default now(), primary key (psychologist_id, area));
 create table public.points_ledger (id uuid primary key default gen_random_uuid(), psychologist_id uuid not null references public.psychologist_profiles(id) on delete cascade, delta int not null, reason text not null, created_at timestamptz default now());
-create view public.leaderboard with (security_invoker = on) as
+create view public.leaderboard with (security_invoker = off) as
   select p.id as psychologist_id, pr.display_name, coalesce(sum(l.delta),0) as points
   from public.psychologist_profiles p join public.profiles pr on pr.id = p.id
   left join public.points_ledger l on l.psychologist_id = p.id
@@ -105,9 +105,20 @@ create table public.support_requests (id uuid primary key default gen_random_uui
 create table public.consents (user_id uuid references auth.users(id) on delete cascade, key text not null, granted boolean not null, updated_at timestamptz default now(), primary key (user_id, key));
 create table public.audit_events (id uuid primary key default gen_random_uuid(), actor uuid, action text not null, target text, created_at timestamptz default now());
 
--- Grants
-grant select on public.specialties, public.languages, public.psychologist_profiles, public.psychologist_specialties, public.psychologist_languages, public.availability, public.universities, public.scholarship_opportunities, public.points_ledger, public.leaderboard to anon, authenticated;
-grant select, insert, update, delete on all tables in schema public to authenticated;
+-- Explicit grants: do not grant blanket write access to every table.
+revoke all on all tables in schema public from anon, authenticated;
+grant select on public.specialties, public.languages, public.psychologist_profiles,
+  public.psychologist_specialties, public.psychologist_languages, public.availability,
+  public.universities, public.scholarship_opportunities, public.leaderboard
+  to anon, authenticated;
+grant select, insert, update, delete on public.profiles, public.psychologist_profiles,
+  public.psychologist_specialties, public.psychologist_languages, public.refugee_profiles,
+  public.availability, public.appointments, public.psychologist_verifications,
+  public.universities, public.scholarship_opportunities, public.psychologist_interests,
+  public.consents to authenticated;
+grant select on public.user_roles, public.support_requests, public.audit_events to authenticated;
+grant insert on public.support_requests to authenticated;
+grant select on public.points_ledger to authenticated;
 grant all on all tables in schema public to service_role;
 
 -- RLS
@@ -123,6 +134,12 @@ alter table public.audit_events enable row level security;
 alter table public.points_ledger enable row level security;
 alter table public.scholarship_opportunities enable row level security;
 alter table public.availability enable row level security;
+alter table public.specialties enable row level security;
+alter table public.psychologist_specialties enable row level security;
+alter table public.languages enable row level security;
+alter table public.psychologist_languages enable row level security;
+alter table public.universities enable row level security;
+alter table public.psychologist_interests enable row level security;
 
 create policy "own profile" on public.profiles for all to authenticated using (id = auth.uid()) with check (id = auth.uid());
 create policy "read own roles" on public.user_roles for select to authenticated using (user_id = auth.uid());
@@ -142,9 +159,28 @@ create policy "own consents" on public.consents for all to authenticated using (
 create policy "create support" on public.support_requests for insert to authenticated with check (user_id = auth.uid());
 create policy "staff read support" on public.support_requests for select to authenticated using (user_id = auth.uid() or public.has_role(auth.uid(),'moderator') or public.has_role(auth.uid(),'admin'));
 create policy "admin audit" on public.audit_events for select to authenticated using (public.has_role(auth.uid(),'admin'));
-create policy "public points" on public.points_ledger for select to anon, authenticated using (true);  -- writes only via service_role
+create policy "public catalog specialties" on public.specialties for select to anon, authenticated using (true);
+create policy "public catalog languages" on public.languages for select to anon, authenticated using (true);
+create policy "public psychologist specialties" on public.psychologist_specialties for select to anon, authenticated
+  using (exists (select 1 from public.psychologist_profiles p where p.id = psychologist_id and p.is_public));
+create policy "own psychologist specialties" on public.psychologist_specialties for all to authenticated
+  using (psychologist_id = auth.uid()) with check (psychologist_id = auth.uid());
+create policy "public psychologist languages" on public.psychologist_languages for select to anon, authenticated
+  using (exists (select 1 from public.psychologist_profiles p where p.id = psychologist_id and p.is_public));
+create policy "own psychologist languages" on public.psychologist_languages for all to authenticated
+  using (psychologist_id = auth.uid()) with check (psychologist_id = auth.uid());
+create policy "public universities" on public.universities for select to anon, authenticated using (true);
+create policy "university owner manages own record" on public.universities for all to authenticated
+  using (owner_id = auth.uid()) with check (owner_id = auth.uid());
+create policy "own psychologist interests" on public.psychologist_interests for all to authenticated
+  using (psychologist_id = auth.uid()) with check (psychologist_id = auth.uid());
+create policy "own points ledger" on public.points_ledger for select to authenticated
+  using (psychologist_id = auth.uid() or public.has_role(auth.uid(), 'admin'));
 create policy "public opportunities" on public.scholarship_opportunities for select to anon, authenticated using (true);
 create policy "partner manages opportunities" on public.scholarship_opportunities for all to authenticated
-  using (exists (select 1 from public.universities u where u.id = university_id and u.owner_id = auth.uid()));
-create policy "public availability" on public.availability for select to anon, authenticated using (true);
-create policy "own availability" on public.availability for all to authenticated using (psychologist_id = auth.uid()) with check (psychologist_id = auth.uid());
+  using (exists (select 1 from public.universities u where u.id = university_id and u.owner_id = auth.uid()))
+  with check (exists (select 1 from public.universities u where u.id = university_id and u.owner_id = auth.uid()));
+create policy "public availability" on public.availability for select to anon, authenticated
+  using (exists (select 1 from public.psychologist_profiles p where p.id = psychologist_id and p.is_public));
+create policy "own availability" on public.availability for all to authenticated
+  using (psychologist_id = auth.uid()) with check (psychologist_id = auth.uid());
