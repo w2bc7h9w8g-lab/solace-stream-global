@@ -35,7 +35,7 @@ returns trigger
 language plpgsql
 security definer
 set search_path = public, pg_temp
-as $
+as $guard$
 begin
   if coalesce(auth.role(), '') <> 'service_role'
      and not coalesce(public.has_role(auth.uid(), 'admin'), false) then
@@ -49,7 +49,7 @@ begin
   end if;
   return new;
 end;
-$;
+$guard$;
 
 create trigger guard_psychologist_publication
 before insert or update of is_public on public.psychologist_profiles
